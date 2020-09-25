@@ -1,11 +1,14 @@
 //CRUD 
  //init
-const mongodb =require('mongodb')
+/* const mongodb =require('mongodb')
 const MongoClient =mongodb.MongoClient
-
+const ObjectID = mongodb.ObjectID
+ */
+const {MongoClient, ObjectID} = require('mongodb')
 
 const connectionURL ='mongodb://127.0.0.1:27017'
 const databaseName='task-manager'
+
 
 
 MongoClient.connect(connectionURL, {useNewUrlParser: true, useUnifiedTopology: true }, (error, client) =>
@@ -14,52 +17,41 @@ MongoClient.connect(connectionURL, {useNewUrlParser: true, useUnifiedTopology: t
     {return console.log('Unable to connect to database!')}
 
     const db = client.db(databaseName)
-//CREATE
-     
 
-    db.collection('users').insertOne({
-        name: 'Pierre',
-        age: 21
-    }, (error, result) =>
+//READ
+
+     db.collection('users').findOne({ _id: new ObjectID("5f6dd0021a0c372d9c455f8f")},(error,user) =>{
+        if(error)
+        {
+            return console.log("Unable to fetch")
+        }
+        console.log(user)
+    })
+    db.collection('users').find({age: 21}).toArray((error, users) =>
+    {
+        console.log(users)
+    })
+    db.collection('users').find({age: 21}).count((error, count) =>
+    {
+        console.log(count)
+    })
+ 
+    db.collection('tasks').findOne({_id: new ObjectID("5f6dfd6f5f6a9c3154510857")}, (error, task) =>
     {
         if(error){
-            return console.log("Unable to inser user")
+           return console.log("Unable to fetch")
         }
-        console.log(result.insertedCount)
-    }) 
- 
-    db.collection('users').insertMany([{
-            name:'perper',
-            age:29
-        },{
+        console.log(task)
 
-            name:'parpar',
-            age:23
-        }], (error, result) => 
-        {
-            if(error){
-                return console.log("Unable to inser docs")
-            }
-            console.log(result.ops)
+    })
 
-        })
+    db.collection('tasks').find({completed: false}).toArray((error, tasks) =>
+    {
+        if(error){
+            return console.log("Unable to fetch")
+         }
+         console.log(tasks)
 
-    db.collection('tasks').insertMany([
-        {
-        description: "wake up", 
-        completed: true},
-        {
-        description: "have breakfast", 
-        completed: false
-        },{
-        description: "get dressed", 
-        completed: false
-        }], (error, result) =>{
-            if (error)
-            {
-                return console.log(error)
-            }
-            console.log(result.ops)
-        })
+    })
 
 })
