@@ -1,4 +1,6 @@
 const express = require('express')
+const { default: validator } = require('validator')
+const { update } = require('./models/task')
 
 require('./db/mongoose')
 const Task = require('./models/task')
@@ -62,6 +64,61 @@ app.get('/users', async (req,res) => {
         res.status(500).send(e)
     }
 
+})
+
+app.patch('/users/:id', async(req,res)=>{
+    const updates = Object.keys(req.body)
+    const allowedUpdates= ['name','email','password','age']
+
+    const isValidOp = updates.every((update) => {
+        return allowedUpdates.includes(update)
+    })
+
+    if(!isValidOp)
+    {
+        return res.status(400).send({error: "Invalid update(s)!"})
+    }
+    try{
+        const user = await User.findByIdAndUpdate(req.params.id, req.body, {new :true, runValidators: true})
+        if(!user)
+        {
+            return res.status(404).send()
+        }
+        res.send(user)
+    }
+    catch(e)
+    {
+        res.status(400).send(e)
+    }
+
+})
+
+app.patch('/tasks/:id', async (req,res)=> {
+    const updates = Object.keys(req.body)
+    const allowedUpdates = ['description','completed']
+
+    const validOp = updates.every((update) => {
+        return allowedUpdates.includes(update)
+    })
+
+    if(!validOp)
+    {
+        return res.status(400).send({error: "Invalid update(s)!"})
+    }
+    try{
+        const _id = req.params.id
+        const task = await Task.findByIdAndUpdate(_id, req.body, {new :true, runValidators:true}) 
+        if(!task)
+        {
+            return res.status(404).send()
+        }
+        res.send(task)
+    }
+    catch(e)
+    {
+        res.status(400).send()
+
+    }
 })
 
 app.get('/users/:id', async (req, res) => {
