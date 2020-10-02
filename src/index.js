@@ -49,7 +49,7 @@ const main = async () => {
   await user.populate('tasks').execPopulate()
   console.log(user.tasks) 
 }
-main()
+//main()
 /* const pet = {
   name: 'hal'
 }
