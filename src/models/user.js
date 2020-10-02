@@ -74,7 +74,6 @@ userSchema.pre('save', async function(next) {
 // static
 userSchema.statics.findByCredentials = async (email, password) => {
     const user = await User.findOne({email})
-    
     if(!user)
     {
         throw new Error("Incorrect email/password!")
@@ -100,6 +99,15 @@ userSchema.methods.generateAuthToken = async function() {
     user.tokens = user.tokens.concat({token})
     await user.save()
     return token
+}
+userSchema.methods.toJSON = function() {
+    const user = this
+    const userObject = user.toObject()
+
+    delete userObject.password
+    delete userObject.tokens
+
+    return userObject
 }
 const User = mongoose.model('User', userSchema)
 
