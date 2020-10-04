@@ -3,6 +3,7 @@ const User = require ('../models/user')
 const auth = require('../middleware/auth') 
 const multer = require('multer')
 const sharp = require('sharp')
+const { sendWelcomeEmail, sendCancelEmail } =  require('../emails/account')
 const router = new express.Router()
 
 
@@ -14,6 +15,7 @@ router.post('/users', async (req,res) => {
 
     try{
         await user.save()
+        sendWelcomeEmail(user.email,user.name)
         const token = await user.generateAuthToken()
         res.status(201).send({user, token})
     }catch(e){
@@ -140,6 +142,7 @@ router.delete('/users/me', auth, async (req,res)=>{
             return res.status(404).send()
         } */
         await req.user.remove()
+        sendCancelEmail(req.user.email,req.user.name)
         res.send(req.user)
     } catch (error) {
         res.status(500).send()
@@ -164,7 +167,6 @@ const upload = multer({
 })
 router.post('/users/me/avatar', auth, upload.single('avatar'), async (req,res) => {
    // no dest then file is accesible here
-   
    
    
    const buffer = await sharp(req.file.buffer).resize({width: 250, height: 250}).png().toBuffer()
@@ -197,7 +199,7 @@ router.get('/users/:id/avatar', async (req,res) =>{
             throw new Error()
         }
 
-        res.set('Content-Type','image/png')
+        res.set('Content-Type','image/png') //by default it is set to application/json  i think
         res.send(user.avatar)
 
     } catch (e) {

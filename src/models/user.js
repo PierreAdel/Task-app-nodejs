@@ -77,7 +77,7 @@ userSchema.virtual('tasks', {
 // hash the plain test password
 userSchema.pre('save', async function(next) {
     const user = this 
-    console.log("before saving")
+    
 
     if(user.isModified('password'))
     {
@@ -123,7 +123,7 @@ userSchema.statics.findByCredentials = async (email, password) => {
 //inistance
 userSchema.methods.generateAuthToken = async function() {
     const user = this
-    const token = await jwt.sign({_id: user._id.toString()}, 'thisisatest')
+    const token = await jwt.sign({_id: user._id.toString()}, process.env.JWT_SECRET)
    
     user.tokens = user.tokens.concat({token})
     await user.save()
